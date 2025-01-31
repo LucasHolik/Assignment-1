@@ -1,113 +1,129 @@
 //Assignment 1/assignment_1.cpp
 //This program calculates the energy of the transition of an electron in an atom with atomic number Z.
 //Lucas Holik 11010219
-//Created on 27/01/2025
+//Created on 28/01/2025
 
+//Include the necessary libraries.
 #include <iostream>
 #include <cmath>
 #include <string>
 #include <tuple>
 #include <stdexcept>
 
-//Want to find the electron transition energy for the outer electron in an atom with atomic number Z.
+//Define the conversion factor from eV to J.
+const float eV_to_J{1.602176634e-19};
+
+float get_transition_energy(int n_i, int n_j, int Z, std::string unit)
+{   //Calculates the transition energy for a given atomic number and energy levels.
+    float transition_energy{13.6 * pow(Z, 2) * (1/pow(n_j, 2) - 1/pow(n_i, 2))};
+
+    //Convert energy to joules if specified.
+    if (unit == "J")
+    {
+        transition_energy *= eV_to_J;
+    }
+
+    return transition_energy;
+}
 
 void check_cin()
-{
+{   //Checks if std::cin has failed. If it has, it clears the error, ignores the rest of the input, and throws an exception.
     if (std::cin.fail())
     {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        throw std::invalid_argument("Invalid input. Please enter a valid integer.");
+        throw std::invalid_argument("Invalid input, please enter what is asked.");
     }
 }
 
-//Create a function returning the energy in eV.
-float transition_energy(int n_i, int n_j, int Z)
-{
-    float transitionEnergy{13.6 * pow(Z, 2) * (1/pow(n_j, 2) - 1/pow(n_i, 2))};
-    return transitionEnergy;
-}
-//Transition is only positive if the initial energy level n_i > the final energy level n_j.
-bool valid_energy_levels(int n_i, int n_j)
-{
-    if (n_i > n_j)
-        return true;
-    else 
-        return false;
-}
-
-std::tuple<int,int,int,std::string> get_valid_inputs()
-{   //This function gets valid inputs for energy level numbers and atomic number.
-    //Define variables.
-    int n_i, n_j, Z;
+int get_integer(std::string message)
+{   //Repeatedly tells the user 'message' until a valid integer is entered.
+    int number;
     bool valid_input{false};
     
     while (!valid_input)
     {
         try
         {
-            /* code */
+            std::cout<<message<<std::endl;
+            std::cin >> number;
+            check_cin();
+            valid_input = true;
         }
-        catch(const std::exception& e)
+        catch(const std::invalid_argument& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+    }
+    return number;
+}
+
+std::tuple<int,int> get_energy_levels()
+{
+    int n_i, n_j;
+    bool valid_input{false}; //Assume an invalid input until proven otherwise.
+
+    while (!valid_input)
+    {
+        try
+        {
+            n_i = get_integer("Please enter the initial energy level of the electron: ");
+            n_j = get_integer("Please enter the final energy level of the electron: ");
+
+            if (n_i > n_j)
+            {
+                valid_input = true;
+            }
+            else
+            {
+                throw std::invalid_argument("The initial energy level must be greater than the final energy level.");
+            }
+        }
+        catch(const std::invalid_argument &e)
         {
             std::cerr << e.what() << '\n';
         }
         
-        std::cout<<"Please enter the initial energy level of the electron: ";
-        std::cin >> n_i;
-
-        check_cin();
-
-        std::cout << "Please enter the final energy level of the electron: ";
-        std::cin >> n_j;
-        
-        check_cin();
-
-        valid_input = valid_energy_levels(n_i, n_j);
-        
-        if (valid_input == true)
-            std::cout<<"The initial energy level must be greater than the final energy level."<<std::endl;
     }
-    valid_input = false;
-    
-    while (!valid_input)
-    {
-        std::cout << "Please enter the atomic number of the atom: ";
-        std::cin >> Z;
-        if (Z > 0)
-            valid_input = true;
-        else
-            std::cout<<"The atomic number must be an integer greater than 0.";
-    }
-
-    valid_input = false;
-    std::string response;
-    while(!valid_input)
-    {
-        std::cout<<"Would you like the result in electron-volts (type 'eV') or in joules (type 'J')?";
-        std::cin>>response;
-        if (response == "eV" || response == "J")
-            valid_input = true;
-        else
-            std::cout<<"Please enter a valid response.";
-    }
-        
+    std::tuple<int,int> energy_levels = std::make_tuple(n_i, n_j);
+    return energy_levels;
 }
 
-int main() 
+std::string get_energy_unit()
 {
-    std::string response;
-    int n_i, n_j, Z;
+    std::string unit;
+    bool valid_input{false};
 
-    std::cout<<"This programs calculates the energy of the transition of an electron in an atom with atomic number Z."<<std::endl;
-    
-    float energy = transition_energy(n_i, n_j, Z);
+    while (!valid_input)
+    {
+        std::cout<<"Would you like the energy to be displayed in joules or electron-volts? (type 'J' or 'eV')"<<std::endl;
+        std::cin >> unit;
 
-    std::cout << "The energy of the transition is: " << energy << " eV" << std::endl;
+        if (unit == "J" || unit == "eV")
+        {
+            valid_input = true;
+        }
+        else
+        {
+            std::cout<<"Please enter a valid response."<<std::endl;
+        }
+    }
 
-    std::cout<<"Would you like to calculate another transition energy? (y/n): ";
-    std::cin>>response;
+    return unit;
+}
 
-    if(response == "y") 
-        main();
+int main()
+{
+    int n_i, n_j;
+
+    std::tuple<int,int> energy_levels = get_energy_levels();
+    std::tie(n_i, n_j) = energy_levels;
+
+    std::string unit = get_energy_unit();
+
+    float transition_energy = get_transition_energy(n_i, n_j, 1, unit);
+
+    std::cout<<"The transition energy is: "<<transition_energy<<" "<<unit<<std::endl;
+
+    return 0;
 }
