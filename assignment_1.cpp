@@ -36,19 +36,27 @@ void check_cin()
     }
 }
 
-int get_integer(std::string message)
-{   //Repeatedly tells the user 'message' until a valid integer is entered.
+int get_positive_integer(std::string message)
+{   //Repeatedly tells the user 'message' until a positive integer is entered.
     int number;
     bool valid_input{false};
-    
+    //Loop until a valid input is entered.
     while (!valid_input)
     {
         try
         {
-            std::cout<<message<<std::endl;
+            std::cout<<message;
             std::cin >> number;
             check_cin();
-            valid_input = true;
+
+            if (number > 0)
+            {
+                valid_input = true;
+            }
+            else
+            {
+                throw std::invalid_argument("Energy levels are positive integers.");
+            }
         }
         catch(const std::invalid_argument& e)
         {
@@ -61,14 +69,14 @@ int get_integer(std::string message)
 std::tuple<int,int> get_energy_levels()
 {
     int n_i, n_j;
-    bool valid_input{false}; //Assume an invalid input until proven otherwise.
-
+    bool valid_input{false};
+    //Loop until a valid input is entered.
     while (!valid_input)
     {
         try
         {
-            n_i = get_integer("Please enter the initial energy level of the electron: ");
-            n_j = get_integer("Please enter the final energy level of the electron: ");
+            n_i = get_positive_integer("Please enter the initial energy level of the electron: ");
+            n_j = get_positive_integer("Please enter the final energy level of the electron: ");
 
             if (n_i > n_j)
             {
@@ -96,7 +104,7 @@ std::string get_energy_unit()
 
     while (!valid_input)
     {
-        std::cout<<"Would you like the energy to be displayed in joules or electron-volts? (type 'J' or 'eV')"<<std::endl;
+        std::cout<<"Would you like the energy to be displayed in joules or electron-volts? Type 'J' or 'eV': ";
         std::cin >> unit;
 
         if (unit == "J" || unit == "eV")
