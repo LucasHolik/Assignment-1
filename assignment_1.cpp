@@ -62,7 +62,7 @@ int get_positive_integer(std::string message)
             }
             else
             {
-                throw std::invalid_argument("Energy levels are positive integers.");
+                throw std::invalid_argument("Please enter a positive integer.");
             }
         }
         catch(const std::invalid_argument &e) //Catch any exceptions thrown in get_positive_integer or check_cin.
@@ -113,12 +113,12 @@ std::tuple<int,int> get_energy_levels()
 }
 
 std::string get_energy_unit()
-{   //
+{   //Gets the user to input the unit they want the transition energy to be displayed in.
     std::string unit;
     bool valid_input{false};
 
     while(!valid_input)
-    {   //Gets the user to input 
+    {   
         std::cout<<"Would you like the energy to be displayed in joules or electron-volts? Type 'J' or 'eV': ";
         std::cin >> unit;
         //Cover all cases, upper and lower case.
@@ -131,7 +131,7 @@ std::string get_energy_unit()
             std::cout<<"Please enter a valid response."<<std::endl;
         }
     }
-    //Redefine unit in such that get_transition_energy can use it.
+    //Redefine unit such that get_transition_energy can use it.
     if(unit == "j" || unit == "J")
     {
         unit = "J";
@@ -144,12 +144,8 @@ std::string get_energy_unit()
     return unit;
 }
 
-int main()
-{   
-    //Gives the user some information about the program and electron transitions.
-    std::cout<<"This programs calculates the energy of an emitted photon due to an electron transition between energy levels in an atom of atomic number Z."<<std::endl;
-    std::cout<<"The electron's initial quantum number (n) must be greater than its final quantum number. Quantum numbers n must be positive integers, hence the minimum values for the inital and final quantum numbers are 2 and 1 respectively."<<std::endl;
-
+void calculate_transition_energy()
+{   //Function to do everything regarding calculating the transition energy.
     int n_i, n_j;
     //Get the energy levels.
     std::tuple<int,int> energy_levels = get_energy_levels();
@@ -165,6 +161,39 @@ int main()
     std::cout << std::scientific << std::setprecision(2);
     //Display the transition energy.
     std::cout<<"The transition energy is: "<<transition_energy<<" "<<unit<<" to 3 significant figures"<<std::endl;
+}
 
+int main()
+{   
+    //Gives the user some information about the program and electron transitions.
+    std::cout<<"This programs calculates the energy of an emitted photon due to an electron transition between energy levels in an atom of atomic number Z."<<std::endl;
+    std::cout<<"The electron's initial quantum number (n) must be greater than its final quantum number. Quantum numbers n must be positive integers, hence the minimum values for the inital and final quantum numbers are 2 and 1 respectively."<<std::endl;
+
+    //Call the function to calculate the transition energy.
+    calculate_transition_energy();
+    //Ask the user if they want to do another calculation.
+    std::cout<<"Would you like to do another calculation? Type 'y' for yes or 'n' for no: ";
+    //Loop until the user decides to exit.
+    bool exit{false};
+    std::string response; //Intentionally a string to help with error checking (eg entering "yx" would still validate as 'y' for a char).
+    while(!exit)
+    {
+        std::cin>>response;
+        //Check if the user wants to exit.
+        if(response == "n" || response == "N")
+        {
+            exit = true;
+        }
+        else if(response == "y" || response == "Y")
+        {   //If user doesn't want to exit do another calculation and then ask the message after.
+            calculate_transition_energy();
+            std::cout<<"Would you like to do another calculation? Type 'y' for yes or 'n' for no: ";
+        }
+        else
+        {
+            std::cout<<"Please enter a valid response (y/n): ";
+        }
+    }
+    
     return 0;
 }
