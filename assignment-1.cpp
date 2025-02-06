@@ -1,4 +1,4 @@
-//Assignment 1/assignment_1.cpp
+//Assignment 1/assignment-1.cpp
 //This program calculates the energy of a photon emitted during an electron transition in an atom of atomic number Z, according to the Bohr model.
 //Lucas Holik 11010219
 //Created on 28/01/2025
